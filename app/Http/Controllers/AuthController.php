@@ -33,13 +33,22 @@ class AuthController extends Controller
 
             }
             $user=User::where('email',$request->email)->first();
+            $token=$user->createToken("API-TOKEN")->plainTextToken;
+            if($token){
+                return response()->json([
+                    'user'=>$user,
+                    'token'=>$token
+                  ],200);
+
+            }
+           else{
             return response()->json([
-                'sucsess'=>1,
-                'result'=>$user,
-                'message'=>'register first',
-                'token'=>$user->createToken("API-TOKEN")->plainTextToken
+                'sucsess'=>0,
+                'result'=>null,
+                'message'=>'some thing went wrong',
               ],200);
 
+           }
 
         }
         catch(Exception $e){
@@ -53,11 +62,6 @@ class AuthController extends Controller
     }
     function register(Request $request)
     {
-       /* return User::create([
-            'email'=>$request->email,
-            'name'=>$request->name,
-            'password'=>Hash::make($request->password),
-        ]);*/
         try {
             $validation = Validator::make($request->all(), [
                 "email" => 'required|email|unique:users,email',
@@ -77,25 +81,28 @@ class AuthController extends Controller
                'name'=>$request->name,
                'password'=>Hash::make($request->password),
             ]);
-            $user->email=$request->email;
-            $user->name=$request->name;
-            $user->password=Hash::make($request->password);
-            $user->save();
 
+            $token=$user->createToken("API-TOKEN")->plainTextToken;
+            if($token){
+                return response()->json([
+                    'user'=>$user,
+                    'token'=>$token
+                  ],200);
 
+            }
 
+          else{
             return response()->json([
-                'sucsess'=>1,
-                'result'=>$user,
-                'message'=>'user created sucsessfully',
-                'token'=>$user->createToken("API-TOKEN")->plainTextToken
+                'sucsess'=>0,
+                'result'=>null,
+                'message'=>'some thing went wrong',
               ],200);
-
+          }
         } catch (Exception $e) {
             return response()->json([
-                'status'=>'failed',
-                'validator errors'=>$e,
-                'Exceptions'=>$e
+                'sucsess'=>0,
+                'result'=>null,
+                'message'=>$e
             ],200);
         }
     }
